@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:auth/User.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class listing extends StatefulWidget {
   @override
@@ -20,16 +22,15 @@ class listingState extends State<listing> {
   int page = 1;
   int total = 0;
 
- fetchAlbum() async {
+  fetchAlbum() async {
     final response = await http.get(Uri.parse(
         'https://swapi.dev/api/planets/?format=json&page=' + page.toString()));
     isLoading = false;
     if (response.statusCode == 200) {
-
       // If the server did return a 200 OK response,
       // then parse the JSON.
       var json = jsonDecode(response.body);
-      total =  json['count'];
+      total = json['count'];
       json['results'].forEach((v) {
         setState(() {
           var v2 = v;
@@ -51,7 +52,7 @@ class listingState extends State<listing> {
     // TODO: implement initState
     super.initState();
     isLoading = true;
-   fetchAlbum();
+    fetchAlbum();
   }
 
   @override
@@ -61,57 +62,101 @@ class listingState extends State<listing> {
 
       await new Future.delayed(new Duration(seconds: 1));
       // update data and loading status
-        setState(() {
-          page += 1;
-          fetchAlbum();
-          isLoading = false;
-        });
-
-
+      setState(() {
+        page += 1;
+        fetchAlbum();
+        isLoading = false;
+      });
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Hello"),
-      ),
 
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scrollInfo) {
-                if (!isLoading &&
-                    scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent) {
-                  if(results.length != total) {
-                    _loadData();
-                    // start loading data
-                    setState(() {
-                      isLoading = true;
-                    });
-                  }
-                }
-                return false;
-              },
-              child: ListView.builder(
-                itemCount: results.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text('${results[index]}'),
-                  );
-                },
-              ),
-            ),
-          ),
-          Container(
-            height: isLoading ? 50.0 : 0,
-            color: Colors.transparent,
-            child: Center(
-              child: new CircularProgressIndicator(),
-            ),
-          ),
-        ],
+    return Scaffold(
+      body: AnimationLimiter(
+        child: ListView.builder(
+            itemCount: 100,
+            itemBuilder: (context, index) {
+              return AnimationConfiguration.staggeredList(
+                position: index,
+                duration: const Duration(milliseconds: 375),
+                child: SlideAnimation(
+                  horizontalOffset: 150,
+                  child: FadeInAnimation(
+                    child: Card(
+                      elevation: 2,
+                      child: ListTile(
+                        title: Text("Title"),
+                        subtitle: Text('sdfg'),
+                        trailing: Icon(
+                          Icons.favorite,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
       ),
     );
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     title: Text("Hello"),
+    //   ),
+    //   body: Column(
+    //     children: <Widget>[
+    //       Expanded(
+    //         child: NotificationListener<ScrollNotification>(
+    //           onNotification: (ScrollNotification scrollInfo) {
+    //             if (!isLoading &&
+    //                 scrollInfo.metrics.pixels ==
+    //                     scrollInfo.metrics.maxScrollExtent) {
+    //               if (results.length != total) {
+    //                 _loadData();
+    //                 // start loading data
+    //                 setState(() {
+    //                   isLoading = true;
+    //                 });
+    //               }
+    //             }
+    //             return false;
+    //           },
+    //           child: AnimationLimiter(
+    //               child: ListView.builder(
+    //             itemCount: results.length,
+    //             itemBuilder: (context, index) {
+    //               return AnimationConfiguration.staggeredList(
+    //                 child: SlideAnimation(
+    //                     child: FadeInAnimation(
+    //                         child: Card(
+    //                       child: Padding(
+    //                         child: Text('${results[index]}',
+    //                             style: TextStyle(color: Colors.red)),
+    //                         padding: EdgeInsets.all((10)),
+    //                       ),
+    //                     )),
+    //                     horizontalOffset: 150),
+    //                 position: index,
+    //                 duration: const Duration(milliseconds: 375),
+    //               );
+    //               // return ListTile(
+    //               //   title: Card(child: Padding(padding:
+    //               //   EdgeInsets.all(10),
+    //               //     child: Text('${results[index]}', style: TextStyle(
+    //               //         color: Colors.red), textScaleFactor: 1.5,),),),
+    //               // );
+    //             },
+    //           )),
+    //         ),
+    //       ),
+    //       Container(
+    //         height: isLoading ? 50.0 : 0,
+    //         color: Colors.transparent,
+    //         child: Center(
+    //           child: new CircularProgressIndicator(),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
 
     // return FutureBuilder<User>(
     //   future: futureAlbum,

@@ -1,4 +1,7 @@
+import 'package:auth/Home/HomeScreen.dart';
 import 'package:auth/listing.dart';
+import 'package:auth/providerexample.dart';
+import 'package:auth/ChatScreen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -109,7 +112,7 @@ class _AppState extends State<App> {
       var userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       if(userCredential.additionalUserInfo!.profile!.keys.first.length > 0){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> listing()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
       }
     } catch (e) {
       print(e);
